@@ -26,8 +26,27 @@ io.on('connection', (client) => {
     });
 
     // Emiter un evento 'estadoActual'
-    client.emit('estadoActual',{
-        actual: ticketControl.getUltimoTicket()
+    client.emit('estadoActual', {
+        actual: ticketControl.getUltimoTicket(),
+        ultimos4: ticketControl.getUltimos4()
+    });
+
+    // Emiter un evento 'estadoActual'
+    client.on('atenderTicket', (data, callback) => {
+
+        if (!data.escritorio) {
+            return callback({
+                err: true,
+                mensaje: 'El escritorio es necesario'
+            });
+        }
+
+        let atenderTicket = ticketControl.atenderTicket(data.escritorio);
+
+        callback(atenderTicket);
+
+        //actualizar notificar cambios en los ULTIMOS 4
+        client.broadcast.emit('ultimos4', {ultimos4: ticketControl.getUltimos4()});
     });
 
 });
